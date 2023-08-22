@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block body %}
+<div class="container" style="padding-top: 120px;"> <!-- Adjust this value as needed -->
+    <h2>Set Managers</h2>
+
+    <!-- Your table and logic for setting managers -->
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Is Manager</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for emp in employees %}
+            <tr>
+                <td>{{ emp.first_name }} {{ emp.last_name }}</td>
+                <td>{{ emp.email }}</td>
+                <td>{{ "Yes" if emp.is_manager else "No" }}</td>
+                <td>
+                    <form method="post" action="{{ url_for('home.set_managers') }}">
+                        <input type="hidden" name="employee_id" value="{{ emp.id }}">
+                        <button type="submit">{{ "Unset Manager" if emp.is_manager else "Set as Manager" }}</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
+
+
+

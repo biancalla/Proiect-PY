@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block body %}
+<div style="padding-top: 100px;">
+    {% if current_user.is_admin %}
+    <div class="container">
+        <h2>Manage Managers</h2>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <!-- Single form for appointing a manager -->
+        <form method="post" action="{{ url_for('home.appoint_manager') }}">
+            {{ form.hidden_tag() }}
+            Manager:
+            {{ form.manager }}
+            Department:
+            {{ form.department }}
+            Role:
+            {{ form.role }}
+            <button type="submit">Assign</button>
+        </form>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
