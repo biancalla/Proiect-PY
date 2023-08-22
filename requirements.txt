@@ -4,6 +4,7 @@ Flask-Boostrap==3.3.7.1
 Flask-Login==0.6.2
 Flask-LoginManager==1.1.6
 Flask-Migrate==4.0.4
+Flask-Testing==0.8.1
 Flask-WTF==1.1.1
 SQLAlchemy==2.0.20
 WTForms==3.0.1

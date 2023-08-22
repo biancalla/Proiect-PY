@@ -70,7 +70,6 @@ class Department(db.Model):
     name = db.Column(db.String(60), unique=True)
     description = db.Column(db.String(200))
     employees = db.relationship('Employee', backref='department', lazy='dynamic', foreign_keys=[Employee.department_id])
-    manager_id = db.Column(db.Integer, db.ForeignKey('employees.id'))
 
     def __repr__(self):
         return '{}'.format(self.name)

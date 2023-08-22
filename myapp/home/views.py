@@ -97,13 +97,6 @@ def appoint_manager():
             flash(f'{employee.username} has been assigned to the manager {Employee.query.get(manager_id).username}!',
                   'success')
 
-        department_id = form.department.data
-        department = Department.query.get(department_id)
-        if department:
-            department.manager_id = manager_id
-            db.session.commit()
-            flash(f'Manager has been appointed to the department!', 'success')
-
         return redirect(url_for('home.appoint_manager'))
 
     return render_template('home/appoint_manager.html', form=form)

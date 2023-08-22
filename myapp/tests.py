@@ -1,8 +1,10 @@
-import unittest
+import unittest2
 import os
 
 from flask_testing import TestCase
 from flask import abort, url_for
+
+from urllib.parse import urlparse, unquote
 
 from myapp import create_app, db
 from myapp.models import Department, Employee, Role
@@ -14,9 +16,9 @@ class TestBase(TestCase):
 
         # pass in test configurations
         config_name = 'testing'
-        app = create_app(config_name)
+        app = create_app()
         app.config.update(
-            SQLALCHEMY_DATABASE_URI='postgresql+psycopg2://postgres:4wdswk:3y:QHW4.@localhost:5432/db_team'
+            SQLALCHEMY_DATABASE_URI='postgresql://postgres:4wdswk:3y:QHW4.@localhost/db_team'
         )
         return app
 
@@ -109,7 +111,20 @@ class TestViews(TestBase):
         redirect_url = url_for('auth.login', next=target_url)
         response = self.client.get(target_url)
         self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, redirect_url)
+        self.assertRedirectsPath(response, redirect_url)
+
+    def assertRedirectsPath(self, response, expected_path):
+        '''
+        Check if the response redirects to the expected path, ignoring domain and scheme
+        '''
+        parsed_expected = urlparse(expected_path)
+        parsed_actual = urlparse(response.location)
+
+        self.assertEqual(parsed_expected.scheme, parsed_actual.scheme)
+        self.assertEqual(parsed_expected.netloc, parsed_actual.netloc)
+        self.assertEqual(parsed_expected.path, parsed_actual.path)
+
+        self.assertEqual(unquote(parsed_expected.query), unquote(parsed_actual.query))
 
     def test_dashboard_view(self):
         '''
@@ -120,7 +135,7 @@ class TestViews(TestBase):
         redirect_url = url_for('auth.login', next=target_url)
         response = self.client.get(target_url)
         self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, redirect_url)
+        self.assertRedirectsPath(response, redirect_url)
 
     def test_admin_dashboard_view(self):
         '''
@@ -131,7 +146,7 @@ class TestViews(TestBase):
         redirect_url = url_for('auth.login', next=target_url)
         response = self.client.get(target_url)
         self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, redirect_url)
+        self.assertRedirectsPath(response, redirect_url)
 
     def test_departments_view(self):
         '''
@@ -142,7 +157,7 @@ class TestViews(TestBase):
         redirect_url = url_for('auth.login', next=target_url)
         response = self.client.get(target_url)
         self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, redirect_url)
+        self.assertRedirectsPath(response, redirect_url)
 
     def test_roles_view(self):
         '''
@@ -153,7 +168,7 @@ class TestViews(TestBase):
         redirect_url = url_for('auth.login', next=target_url)
         response = self.client.get(target_url)
         self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, redirect_url)
+        self.assertRedirectsPath(response, redirect_url)
 
     def test_employees_view(self):
         '''
@@ -164,7 +179,7 @@ class TestViews(TestBase):
         redirect_url = url_for('auth.login', next=target_url)
         response = self.client.get(target_url)
         self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, redirect_url)
+        self.assertRedirectsPath(response, redirect_url)
 
 
 class TestErrorPages(TestBase):
@@ -177,12 +192,12 @@ class TestErrorPages(TestBase):
 
         response = self.client.get('/403')
         self.assertEqual(response.status_code, 403)
-        self.assertTrue("403 Error" in response.data)
+        self.assertTrue("403 Error" in response.data.decode('utf-8'))
 
     def test_404_not_found(self):
         response = self.client.get('/nothinghere')
         self.assertEqual(response.status_code, 404)
-        self.assertTrue("404 Error" in response.data)
+        self.assertTrue("404 Error" in response.data.decode('utf-8'))
 
     def test_500_internal_server_error(self):
         # create route to abort the request with the 500 Error
@@ -192,8 +207,8 @@ class TestErrorPages(TestBase):
 
         response = self.client.get('/500')
         self.assertEqual(response.status_code, 500)
-        self.assertTrue("500 Error" in response.data)
+        self.assertTrue("500 Error" in response.data.decode('utf-8'))
 
 
 if __name__ == '__main__':
-    unittest.main()
+    unittest2.main()
